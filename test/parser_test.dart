@@ -312,7 +312,9 @@ void main() {
         fail('Did not throw.');
       } on Exception catch (ex, st) {
         if (ex is! TemplateException) {
+          // ignore: avoid_print
           print(ex);
+          // ignore: avoid_print
           print(st);
         }
         return ex;
@@ -381,28 +383,25 @@ bool nodeEqual(a, b) {
         a.start == b.start &&
         a.end == b.end;
   } else if (a is VariableNode) {
-    return a is VariableNode &&
-        a.name == b.name &&
+    return a.name == b.name &&
         a.escape == b.escape &&
         a.start == b.start &&
         a.end == b.end;
   } else if (a is SectionNode) {
-    return a is SectionNode &&
-        a.name == b.name &&
+    return a.name == b.name &&
         a.delimiters == b.delimiters &&
         a.inverse == b.inverse &&
         a.start == b.start &&
         a.end == b.end;
   } else if (a is PartialNode) {
-    return a is PartialNode && a.name == b.name && a.indent == b.indent;
+    return a.name == b.name && a.indent == b.indent;
   } else {
     return false;
   }
 }
 
 bool tokenEqual(Token a, Token b) {
-  return a is Token &&
-      a.type == b.type &&
+  return a.type == b.type &&
       a.value == b.value &&
       a.start == b.start &&
       a.end == b.end;

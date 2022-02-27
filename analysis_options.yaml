@@ -3,3 +3,20 @@ linter:
     unawaited_futures: true
     curly_braces_in_flow_control_structures: true
     avoid_catches_without_on_clauses: true
+    avoid_empty_else: true
+    avoid_print: true
+    empty_catches: true
+    prefer_const_constructors_in_immutables: true
+    prefer_const_constructors: true
+    prefer_const_declarations: true
+    unnecessary_const: true
+    prefer_final_fields: true
+    prefer_null_aware_operators: true
+    provide_deprecation_message: true
+    unnecessary_new: true
+    unnecessary_null_aware_assignments: true
+    unnecessary_null_in_if_null_operators: true
+    unnecessary_overrides: true
+    unnecessary_parenthesis: true
+    unnecessary_statements: true
+    valid_regexps: true

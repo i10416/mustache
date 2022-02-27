@@ -1,0 +1,23 @@
+name: test
+on:
+  pull_request:
+    types: [opened, synchronize]
+  push:
+    branches: [ master, main ]
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    container:
+      image:  google/dart:latest
+    steps:
+      - name: set up repository
+        uses: actions/checkout@v2
+      - name: install deps
+        run: pub get
+      - name: analyzer
+        run: dartanalyzer --fatal-warnings --fatal-infos .
+      - name: clone spec
+        run: |
+          git clone https://github.com/mustache/spec.git test/spec
+          dart test/all.dart
