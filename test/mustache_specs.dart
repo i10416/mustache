@@ -14,11 +14,11 @@ import 'package:test/test.dart';
 String render(source, values, {partial}) {
   late Template? Function(String) resolver;
   resolver = (name) {
-    var source = partial(name);
+    final source = partial(name);
     if (source == null) return null;
     return Template(source, partialResolver: resolver, lenient: true);
   };
-  var t = Template(source, partialResolver: resolver, lenient: true);
+  final t = Template(source, partialResolver: resolver, lenient: true);
   return t.renderString(values);
 }
 
@@ -27,12 +27,12 @@ void main() {
 }
 
 void defineTests() {
-  var specs_dir = Directory('test/spec/specs');
+  final specs_dir = Directory('test/spec/specs');
   specs_dir.listSync().forEach((f) {
     if (f is File) {
-      var filename = f.path;
+      final filename = f.path;
       if (shouldRun(filename)) {
-        var text = f.readAsStringSync(encoding: utf8);
+        final text = f.readAsStringSync(encoding: utf8);
         _defineGroupFromFile(filename, text);
       }
     }
@@ -41,18 +41,18 @@ void defineTests() {
 
 void _defineGroupFromFile(filename, text) {
   final jsondata = json.decode(text) as Map<String,dynamic>;
-  var tests = (jsondata['tests'] as Iterable<dynamic>).cast<Map<String,dynamic>>();
+  final tests = (jsondata['tests'] as Iterable<dynamic>).cast<Map<String,dynamic>>();
   filename = filename.substring(filename.lastIndexOf('/') + 1);
   group('Specs of $filename', () {
     tests.forEach((t) {
-      var testDescription = StringBuffer(t['name']);
-      testDescription.write(': ');
-      testDescription.write(t['desc']);
-      var template = t['template'];
+      final testDescription = StringBuffer(t['name'])
+        ..write(': ')
+        ..write(t['desc']);
+      final String template = t['template'];
       final data = int.tryParse(t['data'].toString()) ?? (t['data'] is  Map<String,dynamic> ?  t['data'] as Map<String,dynamic> : t['data'] as String);
-      var templateOneline =
+      final templateOneline =
       template.replaceAll('\n', '\\n').replaceAll('\r', '\\r');
-      var reason =
+      final reason =
       StringBuffer("Could not render right '''$templateOneline'''");
       var expected = t['expected'];
       var partials = t['partials'];
@@ -98,7 +98,7 @@ Function _dummyCallableWithState() {
 Function wrapLambda(Function f) =>
         (LambdaContext ctx) => ctx.renderSource(f(ctx.source).toString());
 
-var lambdas = {
+final lambdas = {
   'Interpolation': wrapLambda((t) => 'world'),
   'Interpolation - Expansion': wrapLambda((t) => '{{planet}}'),
   'Interpolation - Alternate Delimiters':
