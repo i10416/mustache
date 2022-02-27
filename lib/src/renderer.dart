@@ -43,7 +43,7 @@ class Renderer extends Visitor {
 
   void push(value) => _stack.add(value);
 
-  Object pop() => _stack.removeLast();
+  Object? pop() => _stack.isEmpty ? null : _stack.removeLast();
 
   void write(Object output) => sink.write(output.toString());
 
