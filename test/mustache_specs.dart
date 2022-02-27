@@ -40,8 +40,8 @@ void defineTests() {
 }
 
 void _defineGroupFromFile(filename, text) {
-  var jsondata = json.decode(text);
-  var tests = jsondata['tests'];
+  final jsondata = json.decode(text) as Map<String,dynamic>;
+  var tests = (jsondata['tests'] as Iterable<dynamic>).cast<Map<String,dynamic>>();
   filename = filename.substring(filename.lastIndexOf('/') + 1);
   group('Specs of $filename', () {
     tests.forEach((t) {
@@ -49,11 +49,11 @@ void _defineGroupFromFile(filename, text) {
       testDescription.write(': ');
       testDescription.write(t['desc']);
       var template = t['template'];
-      var data = t['data'];
+      final data = int.tryParse(t['data'].toString()) ?? (t['data'] is  Map<String,dynamic> ?  t['data'] as Map<String,dynamic> : t['data'] as String);
       var templateOneline =
-          template.replaceAll('\n', '\\n').replaceAll('\r', '\\r');
+      template.replaceAll('\n', '\\n').replaceAll('\r', '\\r');
       var reason =
-          StringBuffer("Could not render right '''$templateOneline'''");
+      StringBuffer("Could not render right '''$templateOneline'''");
       var expected = t['expected'];
       var partials = t['partials'];
       var partial = (String name) {
@@ -64,8 +64,8 @@ void _defineGroupFromFile(filename, text) {
       };
 
       //swap the data.lambda with a dart real function
-      if (data['lambda'] != null) {
-        data['lambda'] = lambdas[t['name']];
+      if (data is Map<String,dynamic> && data['lambda'] != null) {
+        data['lambda'] = lambdas[t['name'].toString()];
       }
       reason.write(" with '$data'");
       if (partials != null) {
@@ -73,7 +73,7 @@ void _defineGroupFromFile(filename, text) {
       }
       test(
           testDescription.toString(),
-          () => expect(render(template, data, partial: partial), expected,
+              () => expect(render(template, data, partial: partial), expected,
               reason: reason.toString()));
     });
   });
@@ -96,20 +96,20 @@ Function _dummyCallableWithState() {
 }
 
 Function wrapLambda(Function f) =>
-    (LambdaContext ctx) => ctx.renderSource(f(ctx.source).toString());
+        (LambdaContext ctx) => ctx.renderSource(f(ctx.source).toString());
 
 var lambdas = {
   'Interpolation': wrapLambda((t) => 'world'),
   'Interpolation - Expansion': wrapLambda((t) => '{{planet}}'),
   'Interpolation - Alternate Delimiters':
-      wrapLambda((t) => '|planet| => {{planet}}'),
+  wrapLambda((t) => '|planet| => {{planet}}'),
   'Interpolation - Multiple Calls': wrapLambda(
       _dummyCallableWithState()), //function() { return (g=(function(){return this})()).calls=(g.calls||0)+1 }
   'Escaping': wrapLambda((t) => '>'),
   'Section': wrapLambda((txt) => txt == '{{x}}' ? 'yes' : 'no'),
   'Section - Expansion': wrapLambda((txt) => '$txt{{planet}}$txt'),
   'Section - Alternate Delimiters':
-      wrapLambda((txt) => '$txt{{planet}} => |planet|$txt'),
+  wrapLambda((txt) => '$txt{{planet}} => |planet|$txt'),
   'Section - Multiple Calls': wrapLambda((t) => '__${t}__'),
   'Inverted Section': wrapLambda((txt) => false)
 };
