@@ -10,7 +10,7 @@ List<Node> parse(
 }
 
 class Tag {
-  Tag(this.type, this.name, this.start, this.end);
+  const Tag(this.type, this.name, this.start, this.end);
   final TagType type;
   final String name;
   final int start;

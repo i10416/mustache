@@ -1,5 +1,5 @@
 abstract class Node {
-  Node(this.start, this.end);
+  const Node(this.start, this.end);
 
   // The offset of the start of the token in the file. Unless this is a section
   // or inverse section, then this stores the start of the content of the
@@ -19,7 +19,7 @@ abstract class Visitor {
 }
 
 class TextNode extends Node {
-  TextNode(this.text, int start, int end) : super(start, end);
+  const TextNode(this.text, int start, int end) : super(start, end);
 
   final String text;
 
@@ -36,7 +36,7 @@ class TextNode extends Node {
 }
 
 class VariableNode extends Node {
-  VariableNode(this.name, int start, int end, {this.escape = true})
+  const VariableNode(this.name, int start, int end, {this.escape = true})
       : super(start, end);
 
   final String name;
@@ -75,7 +75,7 @@ class SectionNode extends Node {
 }
 
 class PartialNode extends Node {
-  PartialNode(this.name, int start, int end, this.indent) : super(start, end);
+  const PartialNode(this.name, int start, int end, this.indent) : super(start, end);
 
   final String name;
 
