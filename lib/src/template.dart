@@ -1,9 +1,11 @@
 import 'package:mustache_template/mustache.dart' as m;
+import 'package:mustache_template/src/ability.dart';
 import 'node.dart';
 import 'parser.dart' as parser;
 import 'renderer.dart';
 
-class Template implements m.Template {
+class Template with HasSource implements m.Template {
+
   Template.fromSource(String source,
       {bool lenient = false,
       bool htmlEscapeValues = true,

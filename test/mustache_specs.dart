@@ -64,7 +64,7 @@ void _defineGroupFromFile(String filename, String text) {
       final reason =
       StringBuffer("Could not render right '''$templateOneline'''");
       final expected = t['expected'];
-      final partials = t['partials'] is Map<String,dynamic>? ? t['partials'] as Map<String,dynamic>? : null;
+      final partials = t['partials'] is Map<String,dynamic>? ? (t['partials'] as Map<String,dynamic>?)?.cast<String,String?>() : null;
       final partial = (String name) {
         if (partials == null) {
           return null;

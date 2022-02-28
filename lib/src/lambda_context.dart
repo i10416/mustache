@@ -1,4 +1,6 @@
 import 'package:mustache_template/mustache.dart' as m;
+import 'package:mustache_template/src/ability.dart';
+import 'package:meta/meta.dart';
 
 import 'node.dart';
 import 'parser.dart' as parser;
@@ -6,7 +8,7 @@ import 'renderer.dart';
 import 'template_exception.dart';
 
 /// Passed as an argument to a mustache lambda function.
-class LambdaContext implements m.LambdaContext {
+class LambdaContext extends m.LambdaContext with HasSource,LambdaCtxWritable {
   final Node _node;
   final Renderer _renderer;
   bool _closed = false;
@@ -20,6 +22,15 @@ class LambdaContext implements m.LambdaContext {
   void _checkClosed() {
     if (_closed) throw _error('LambdaContext accessed outside of callback.');
   }
+
+  @internal
+  bool get isClosed => _closed;
+
+  @internal
+  Renderer get renderer => _renderer;
+
+  @internal
+  Node get node =>_node;
 
   TemplateException _error(String msg) {
     return TemplateException(
@@ -54,27 +65,29 @@ class LambdaContext implements m.LambdaContext {
     _renderSubtree(_renderer.sink, value);
   }
 
-  @override
-  void write(Object object) {
-    _checkClosed();
-    _renderer.write(object);
+  @internal
+  void checkClosedOrThrow() {
+    if (_closed) throw _error('LambdaContext accessed outside of callback.');
   }
 
   @override
   String get source {
     _checkClosed();
 
-    if (_node is! SectionNode) return '';
-
-    final node = _node as SectionNode;
-    final nodes = node.children;
-    if (nodes.isEmpty) return '';
-
-    if (nodes.length == 1 && nodes.first is TextNode) {
-      return (nodes.single as TextNode).text;
-    }
-
-    return _renderer.source.substring(node.contentStart, node.contentEnd);
+    if(_node is SectionNode) {
+     final node = _node as SectionNode;
+      if(node.children.isEmpty){
+       return '';
+      } else {
+        if(node.children.length == 1 && node.children.first is TextNode) {
+          return (node.children.single as TextNode).text;
+        } else {
+          return _renderer.source.substring(node.contentStart, node.contentEnd);
+        }
+      }
+    }else{
+      return '';
+     }
   }
 
   @override

@@ -322,7 +322,7 @@ void main() {
     }
 
     test('parse eof', () {
-      void expectTemplateEx(ex) => expect(ex is TemplateException, isTrue);
+      void expectTemplateEx(dynamic ex) => expect(ex is TemplateException, isTrue);
 
       expectTemplateEx(parseFail('{{#foo}}{{bar}}{{/foo}'));
       expectTemplateEx(parseFail('{{#foo}}{{bar}}{{/foo'));

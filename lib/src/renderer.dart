@@ -138,7 +138,7 @@ class Renderer extends Visitor {
       final context = LambdaContext(node, this);
       final output = value(context);
       context.close();
-      if (output != null) write(output);
+      if (output != null) write(output as Object);
     } else {
       // Assume the value might have accessible member values via mirrors.
       _renderWithValue(node, value);

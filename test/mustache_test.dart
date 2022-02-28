@@ -1,6 +1,7 @@
 library mustache_test;
 
 import 'package:mustache_template/mustache.dart';
+import 'package:mustache_template/src/ability.dart';
 import 'package:test/test.dart';
 
 const MISMATCHED_TAG = 'Mismatched tag';
@@ -524,7 +525,7 @@ void main() {
   });
 
   group('Lambdas', () {
-    void _lambdaTest({required String template, required String Function(dynamic) lambda, required String output}) => expect(
+    void _lambdaTest({required String template, required String Function(LambdaContext) lambda, required String output}) => expect(
         parse(template).renderString({'lambda': lambda}), equals(output));
 
     test('basic', () {
@@ -559,7 +560,7 @@ void main() {
     test("seth's use case", () {
       const template = '<{{#markdown}}{{content}}{{/markdown}}>';
       final values = {
-        'markdown': (ctx) => ctx.renderString().toLowerCase(),
+        'markdown': (dynamic ctx) => ctx.renderString().toLowerCase(),
         'content': 'OI YOU!'
       };
       const output = '<oi you!>';
@@ -568,14 +569,14 @@ void main() {
 
     test('Lambda v2', () {
       const template = '<{{#markdown}}{{content}}{{/markdown}}>';
-      final values = {'markdown': (ctx) => ctx.source, 'content': 'OI YOU!'};
+      final values = <String,dynamic>{'markdown': (HasSource ctx) => ctx.source, 'content': 'OI YOU!'};
       const output = '<{{content}}>';
       expect(parse(template).renderString(values), equals(output));
     });
 
     test('Lambda v2...', () {
       const template = '<{{#markdown}}dsfsf dsfsdf dfsdfsd{{/markdown}}>';
-      final values = {'markdown': (ctx) => ctx.source};
+      final values = <String,dynamic>{'markdown': (HasSource ctx) => ctx.source};
       const output = '<dsfsf dsfsdf dfsdfsd>';
       expect(parse(template).renderString(values), equals(output));
     });
@@ -618,14 +619,14 @@ void main() {
 
     test('LambdaContext.lookup', () {
       final t = Template('{{ foo }}');
-      final s = t.renderString({'foo': (lc) => lc.lookup('bar'), 'bar': 'jim'});
+      final s = t.renderString(<String,dynamic>{'foo': (dynamic lc) => lc.lookup('bar'), 'bar': 'jim'});
       expect(s, equals('jim'));
     });
 
     test('LambdaContext.lookup closed', () {
       final t = Template('{{ foo }}');
-      var lc2;
-      t.renderString({'foo': (lc) => lc2 = lc, 'bar': 'jim'});
+      dynamic lc2;
+      t.renderString({'foo': (dynamic lc) => lc2 = lc, 'bar': 'jim'});
       expect(() => lc2.lookup('foo'), throwsException);
     });
   });
@@ -675,8 +676,8 @@ void main() {
   group('Lambda context', () {
     test('LambdaContext write', () {
       const template = '<{{#markdown}}{{content}}{{/markdown}}>';
-      final values = {
-        'markdown': (ctx) {
+      final values = <String,dynamic>{
+        'markdown': (Writable<dynamic> ctx) {
           ctx.write('foo');
         }
       };
@@ -688,7 +689,7 @@ void main() {
       const template = '<{{#markdown}}{{content}}{{/markdown}}>';
       final values = {
         'content': 'bar',
-        'markdown': (ctx) {
+        'markdown': (dynamic ctx) {
           ctx.render();
         }
       };

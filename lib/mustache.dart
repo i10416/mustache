@@ -43,7 +43,7 @@ abstract class LambdaContext {
 
   /// Render and directly output the current section tag. If provided, value
   /// will be added to the top of the context's stack.
-  void render({Object value});
+  void render({Object? value});
 
   /// Output a string. The output will not be html escaped, and will be written
   /// before the output returned from the lambda.
