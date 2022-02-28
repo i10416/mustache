@@ -37,11 +37,11 @@ class TemplateException implements m.TemplateException {
 
   @override
   String toString() {
-    var list = [];
+    final list = <dynamic>[];
     if (templateName != null) list.add(templateName);
     list.add(line);
     list.add(column);
-    var location = list.isEmpty ? '' : ' (${list.join(':')})';
+    final location = list.isEmpty ? '' : ' (${list.join(':')})';
     return '$message$location\n$context';
   }
 
@@ -59,7 +59,7 @@ class TemplateException implements m.TemplateException {
     var lineStart = 0;
     var lastWasCR = false;
     for (var i = 0; i < offset!; i++) {
-      var char = source!.codeUnitAt(i);
+      final char = source!.codeUnitAt(i);
       if (char == 0x0a) {
         if (lineStart != i || !lastWasCR) {
           lineNum += 1;
@@ -79,13 +79,13 @@ class TemplateException implements m.TemplateException {
     // Find context.
     var lineEnd = source!.length;
     for (var i = offset!; i < source!.length; i++) {
-      var char = source!.codeUnitAt(i);
+      final char = source!.codeUnitAt(i);
       if (char == 0x0a || char == 0x0d) {
         lineEnd = i;
         break;
       }
     }
-    var length = lineEnd - lineStart;
+    final length = lineEnd - lineStart;
     var start = lineStart;
     var end = lineEnd;
     var prefix = '';
@@ -93,7 +93,7 @@ class TemplateException implements m.TemplateException {
     if (length > 78) {
       // Can't show entire line. Try to anchor at the nearest end, if
       // one is within reach.
-      var index = offset! - lineStart;
+      final index = offset! - lineStart;
       if (index < 75) {
         end = start + 75;
         postfix = '...';
@@ -107,8 +107,8 @@ class TemplateException implements m.TemplateException {
         prefix = postfix = '...';
       }
     }
-    var slice = source!.substring(start, end);
-    var markOffset = offset! - start + prefix.length;
+    final slice = source!.substring(start, end);
+    final markOffset = offset! - start + prefix.length;
 
     _context = "$prefix$slice$postfix\n${" " * markOffset}^\n";
   }

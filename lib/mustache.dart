@@ -20,12 +20,12 @@ abstract class Template {
   /// [values] can be a combination of Map, List, String. Any non-String object
   /// will be converted using toString(). Null values will cause a
   /// [TemplateException], unless lenient module is enabled.
-  String renderString(values);
+  String renderString(dynamic values);
 
   /// [values] can be a combination of Map, List, String. Any non-String object
   /// will be converted using toString(). Null values will cause a
   /// [TemplateException], unless lenient module is enabled.
-  void render(values, StringSink sink);
+  void render(dynamic values, StringSink sink);
 }
 
 typedef PartialResolver = Template? Function(String);

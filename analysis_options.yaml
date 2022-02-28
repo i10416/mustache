@@ -1,22 +1,29 @@
+analyzer:
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
 linter:
   rules:
-    unawaited_futures: true
-    curly_braces_in_flow_control_structures: true
-    avoid_catches_without_on_clauses: true
-    avoid_empty_else: true
-    avoid_print: true
-    empty_catches: true
-    prefer_const_constructors_in_immutables: true
-    prefer_const_constructors: true
-    prefer_const_declarations: true
-    unnecessary_const: true
-    prefer_final_fields: true
-    prefer_null_aware_operators: true
-    provide_deprecation_message: true
-    unnecessary_new: true
-    unnecessary_null_aware_assignments: true
-    unnecessary_null_in_if_null_operators: true
-    unnecessary_overrides: true
-    unnecessary_parenthesis: true
-    unnecessary_statements: true
-    valid_regexps: true
+    - unawaited_futures
+    - curly_braces_in_flow_control_structures
+    - avoid_catches_without_on_clauses
+    - avoid_empty_else
+    - empty_catches
+    - avoid_print
+    - prefer_const_constructors_in_immutables
+    - prefer_const_constructors
+    - prefer_const_declarations
+    - unnecessary_const
+    - prefer_final_fields
+    - prefer_final_locals
+    - prefer_null_aware_operators
+    - provide_deprecation_message
+    - unnecessary_new
+    - unnecessary_null_aware_assignments
+    - unnecessary_null_in_if_null_operators
+    - unnecessary_brace_in_string_interps
+    - unnecessary_overrides
+    - unnecessary_parenthesis
+    - unnecessary_statements
+    - valid_regexps

@@ -30,14 +30,14 @@ class Template implements m.Template {
 
   @override
   String renderString(values) {
-    var buf = StringBuffer();
+    final buf = StringBuffer();
     render(values, buf);
     return buf.toString();
   }
 
   @override
   void render(values, StringSink sink) {
-    var renderer = Renderer(sink, [values], _lenient, _htmlEscapeValues,
+    final renderer = Renderer(sink, [values], _lenient, _htmlEscapeValues,
         _partialResolver, _name, '', source);
     renderer.render(_nodes);
   }

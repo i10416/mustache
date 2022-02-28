@@ -11,7 +11,7 @@ import 'dart:io';
 import 'package:mustache_template/mustache.dart';
 import 'package:test/test.dart';
 
-String render(source, values, {partial}) {
+String render(String source, dynamic values, {required String? Function(String) partial}) {
   late Template? Function(String) resolver;
   resolver = (name) {
     final source = partial(name);
@@ -39,24 +39,33 @@ void defineTests() {
   });
 }
 
-void _defineGroupFromFile(filename, text) {
+void _defineGroupFromFile(String filename, String text) {
   final jsondata = json.decode(text) as Map<String,dynamic>;
   final tests = (jsondata['tests'] as Iterable<dynamic>).cast<Map<String,dynamic>>();
   filename = filename.substring(filename.lastIndexOf('/') + 1);
   group('Specs of $filename', () {
     tests.forEach((t) {
-      final testDescription = StringBuffer(t['name'])
+      if(t['name'] == null){
+        return;
+      }
+      final testDescription = StringBuffer(t['name']! as Object)
         ..write(': ')
         ..write(t['desc']);
-      final String template = t['template'];
+      if(t['template'] == null){
+        return;
+      }
+      final template = t['template']! as String?;
+      if(template == null){
+        return;
+      }
       final data = int.tryParse(t['data'].toString()) ?? (t['data'] is  Map<String,dynamic> ?  t['data'] as Map<String,dynamic> : t['data'] as String);
       final templateOneline =
       template.replaceAll('\n', '\\n').replaceAll('\r', '\\r');
       final reason =
       StringBuffer("Could not render right '''$templateOneline'''");
-      var expected = t['expected'];
-      var partials = t['partials'];
-      var partial = (String name) {
+      final expected = t['expected'];
+      final partials = t['partials'] is Map<String,dynamic>? ? t['partials'] as Map<String,dynamic>? : null;
+      final partial = (String name) {
         if (partials == null) {
           return null;
         }
@@ -91,7 +100,7 @@ bool shouldRun(String filename) {
   return true;
 }
 
-Function _dummyCallableWithState() {
+String? Function(String) _dummyCallableWithState() {
   var _callCounter = 0;
   return (arg) {
     _callCounter++;
@@ -99,7 +108,7 @@ Function _dummyCallableWithState() {
   };
 }
 
-Function wrapLambda(Function f) =>
+Function wrapLambda(dynamic Function(String) f) =>
         (LambdaContext ctx) => ctx.renderSource(f(ctx.source).toString());
 
 final lambdas = {

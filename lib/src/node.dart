@@ -27,7 +27,7 @@ class TextNode extends Node {
   String toString() => '(TextNode "$_debugText" $start $end)';
 
   String get _debugText {
-    var t = text.replaceAll('\n', '\\n');
+    final t = text.replaceAll('\n', '\\n');
     return t.length < 50 ? t : t.substring(0, 48) + '...';
   }
 

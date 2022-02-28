@@ -8,16 +8,16 @@ import 'package:test/test.dart';
 void main() {
   group('Scanner', () {
     test('scan text', () {
-      var source = 'abc';
-      var scanner = Scanner(source, 'foo', '{{ }}');
-      var tokens = scanner.scan();
+      const source = 'abc';
+      final scanner = Scanner(source, 'foo', '{{ }}');
+      final tokens = scanner.scan();
       expectTokens(tokens, [Token(TokenType.text, 'abc', 0, 3)]);
     });
 
     test('scan tag', () {
-      var source = 'abc{{foo}}def';
-      var scanner = Scanner(source, 'foo', '{{ }}');
-      var tokens = scanner.scan();
+      const source = 'abc{{foo}}def';
+      final scanner = Scanner(source, 'foo', '{{ }}');
+      final tokens = scanner.scan();
       expectTokens(tokens, [
         Token(TokenType.text, 'abc', 0, 3),
         Token(TokenType.openDelimiter, '{{', 3, 5),
@@ -28,9 +28,9 @@ void main() {
     });
 
     test('scan tag whitespace', () {
-      var source = 'abc{{ foo }}def';
-      var scanner = Scanner(source, 'foo', '{{ }}');
-      var tokens = scanner.scan();
+      const source = 'abc{{ foo }}def';
+      final scanner = Scanner(source, 'foo', '{{ }}');
+      final tokens = scanner.scan();
       expectTokens(tokens, [
         Token(TokenType.text, 'abc', 0, 3),
         Token(TokenType.openDelimiter, '{{', 3, 5),
@@ -43,9 +43,9 @@ void main() {
     });
 
     test('scan tag sigil', () {
-      var source = 'abc{{ # foo }}def';
-      var scanner = Scanner(source, 'foo', '{{ }}');
-      var tokens = scanner.scan();
+      const source = 'abc{{ # foo }}def';
+      final scanner = Scanner(source, 'foo', '{{ }}');
+      final tokens = scanner.scan();
       expectTokens(tokens, [
         Token(TokenType.text, 'abc', 0, 3),
         Token(TokenType.openDelimiter, '{{', 3, 5),
@@ -60,9 +60,9 @@ void main() {
     });
 
     test('scan tag dot', () {
-      var source = 'abc{{ foo.bar }}def';
-      var scanner = Scanner(source, 'foo', '{{ }}');
-      var tokens = scanner.scan();
+      const source = 'abc{{ foo.bar }}def';
+      final scanner = Scanner(source, 'foo', '{{ }}');
+      final tokens = scanner.scan();
       expectTokens(tokens, [
         Token(TokenType.text, 'abc', 0, 3),
         Token(TokenType.openDelimiter, '{{', 3, 5),
@@ -77,9 +77,9 @@ void main() {
     });
 
     test('scan triple mustache', () {
-      var source = 'abc{{{foo}}}def';
-      var scanner = Scanner(source, 'foo', '{{ }}');
-      var tokens = scanner.scan();
+      const source = 'abc{{{foo}}}def';
+      final scanner = Scanner(source, 'foo', '{{ }}');
+      final tokens = scanner.scan();
       expectTokens(tokens, [
         Token(TokenType.text, 'abc', 0, 3),
         Token(TokenType.openDelimiter, '{{{', 3, 6),
@@ -90,9 +90,9 @@ void main() {
     });
 
     test('scan triple mustache whitespace', () {
-      var source = 'abc{{{ foo }}}def';
-      var scanner = Scanner(source, 'foo', '{{ }}');
-      var tokens = scanner.scan();
+      const source = 'abc{{{ foo }}}def';
+      final scanner = Scanner(source, 'foo', '{{ }}');
+      final tokens = scanner.scan();
       expectTokens(tokens, [
         Token(TokenType.text, 'abc', 0, 3),
         Token(TokenType.openDelimiter, '{{{', 3, 6),
@@ -105,9 +105,9 @@ void main() {
     });
 
     test('scan tag with equals', () {
-      var source = '{{foo=bar}}';
-      var scanner = Scanner(source, 'foo', '{{ }}');
-      var tokens = scanner.scan();
+      const source = '{{foo=bar}}';
+      final scanner = Scanner(source, 'foo', '{{ }}');
+      final tokens = scanner.scan();
       expectTokens(tokens, [
         Token(TokenType.openDelimiter, '{{', 0, 2),
         Token(TokenType.identifier, 'foo=bar', 2, 9),
@@ -116,9 +116,9 @@ void main() {
     });
 
     test('scan comment with equals', () {
-      var source = '{{!foo=bar}}';
-      var scanner = Scanner(source, 'foo', '{{ }}');
-      var tokens = scanner.scan();
+      const source = '{{!foo=bar}}';
+      final scanner = Scanner(source, 'foo', '{{ }}');
+      final tokens = scanner.scan();
       expectTokens(tokens, [
         Token(TokenType.openDelimiter, '{{', 0, 2),
         Token(TokenType.sigil, '!', 2, 3),
@@ -130,9 +130,9 @@ void main() {
 
   group('Parser', () {
     test('parse variable', () {
-      var source = 'abc{{foo}}def';
-      var parser = Parser(source, 'foo', '{{ }}', lenient: false);
-      var nodes = parser.parse();
+      const source = 'abc{{foo}}def';
+      final parser = Parser(source, 'foo', '{{ }}', lenient: false);
+      final nodes = parser.parse();
       expectNodes(nodes, [
         TextNode('abc', 0, 3),
         VariableNode('foo', 3, 10, escape: true),
@@ -141,9 +141,9 @@ void main() {
     });
 
     test('parse variable whitespace', () {
-      var source = 'abc{{ foo }}def';
-      var parser = Parser(source, 'foo', '{{ }}', lenient: false);
-      var nodes = parser.parse();
+      const source = 'abc{{ foo }}def';
+      final parser = Parser(source, 'foo', '{{ }}', lenient: false);
+      final nodes = parser.parse();
       expectNodes(nodes, [
         TextNode('abc', 0, 3),
         VariableNode('foo', 3, 12, escape: true),
@@ -152,9 +152,9 @@ void main() {
     });
 
     test('parse section', () {
-      var source = 'abc{{#foo}}def{{/foo}}ghi';
-      var parser = Parser(source, 'foo', '{{ }}', lenient: false);
-      var nodes = parser.parse();
+      const source = 'abc{{#foo}}def{{/foo}}ghi';
+      final parser = Parser(source, 'foo', '{{ }}', lenient: false);
+      final nodes = parser.parse();
       expectNodes(nodes, [
         TextNode('abc', 0, 3),
         SectionNode('foo', 3, 11, '{{ }}'),
@@ -165,9 +165,9 @@ void main() {
     });
 
     test('parse section standalone tag whitespace', () {
-      var source = 'abc\n{{#foo}}\ndef\n{{/foo}}\nghi';
-      var parser = Parser(source, 'foo', '{{ }}', lenient: false);
-      var nodes = parser.parse();
+      const source = 'abc\n{{#foo}}\ndef\n{{/foo}}\nghi';
+      final parser = Parser(source, 'foo', '{{ }}', lenient: false);
+      final nodes = parser.parse();
       expectNodes(nodes, [
         TextNode('abc\n', 0, 4),
         SectionNode('foo', 4, 12, '{{ }}'),
@@ -178,9 +178,9 @@ void main() {
     });
 
     test('parse section standalone tag whitespace consecutive', () {
-      var source = 'abc\n{{#foo}}\ndef\n{{/foo}}\n{{#foo}}\ndef\n{{/foo}}\nghi';
-      var parser = Parser(source, 'foo', '{{ }}', lenient: false);
-      var nodes = parser.parse();
+      const source = 'abc\n{{#foo}}\ndef\n{{/foo}}\n{{#foo}}\ndef\n{{/foo}}\nghi';
+      final parser = Parser(source, 'foo', '{{ }}', lenient: false);
+      final nodes = parser.parse();
       expectNodes(nodes, [
         TextNode('abc\n', 0, 4),
         SectionNode('foo', 4, 12, '{{ }}'),
@@ -192,9 +192,9 @@ void main() {
     });
 
     test('parse section standalone tag whitespace on first line', () {
-      var source = '  {{#foo}}  \ndef\n{{/foo}}\nghi';
-      var parser = Parser(source, 'foo', '{{ }}', lenient: false);
-      var nodes = parser.parse();
+      const source = '  {{#foo}}  \ndef\n{{/foo}}\nghi';
+      final parser = Parser(source, 'foo', '{{ }}', lenient: false);
+      final nodes = parser.parse();
       expectNodes(
           nodes, [SectionNode('foo', 2, 10, '{{ }}'), TextNode('ghi', 26, 29)]);
       expectNodes(
@@ -202,18 +202,18 @@ void main() {
     });
 
     test('parse section standalone tag whitespace on last line', () {
-      var source = '{{#foo}}def\n  {{/foo}}  ';
-      var parser = Parser(source, 'foo', '{{ }}', lenient: false);
-      var nodes = parser.parse();
+      const source = '{{#foo}}def\n  {{/foo}}  ';
+      final parser = Parser(source, 'foo', '{{ }}', lenient: false);
+      final nodes = parser.parse();
       expectNodes(nodes, [SectionNode('foo', 0, 8, '{{ }}')]);
       expectNodes(
           (nodes[0] as SectionNode).children, [TextNode('def\n', 8, 12)]);
     });
 
     test('parse variable newline', () {
-      var source = 'abc\n\n{{foo}}def';
-      var parser = Parser(source, 'foo', '{{ }}', lenient: false);
-      var nodes = parser.parse();
+      const source = 'abc\n\n{{foo}}def';
+      final parser = Parser(source, 'foo', '{{ }}', lenient: false);
+      final nodes = parser.parse();
       expectNodes(nodes, [
         TextNode('abc\n\n', 0, 5),
         VariableNode('foo', 5, 12, escape: true),
@@ -222,9 +222,9 @@ void main() {
     });
 
     test('parse section standalone tag whitespace v2', () {
-      var source = 'abc\n\n{{#foo}}\ndef\n{{/foo}}\nghi';
-      var parser = Parser(source, 'foo', '{{ }}', lenient: false);
-      var nodes = parser.parse();
+      const source = 'abc\n\n{{#foo}}\ndef\n{{/foo}}\nghi';
+      final parser = Parser(source, 'foo', '{{ }}', lenient: false);
+      final nodes = parser.parse();
       expectNodes(nodes, [
         TextNode('abc\n\n', 0, 5),
         SectionNode('foo', 5, 13, '{{ }}'),
@@ -235,18 +235,18 @@ void main() {
     });
 
     test('parse whitespace', () {
-      var source = 'abc\n   ';
-      var parser = Parser(source, 'foo', '{{ }}', lenient: false);
-      var nodes = parser.parse();
+      const source = 'abc\n   ';
+      final parser = Parser(source, 'foo', '{{ }}', lenient: false);
+      final nodes = parser.parse();
       expectNodes(nodes, [
         TextNode('abc\n   ', 0, 7),
       ]);
     });
 
     test('parse partial', () {
-      var source = 'abc\n   {{>foo}}def';
-      var parser = Parser(source, 'foo', '{{ }}', lenient: false);
-      var nodes = parser.parse();
+      const source = 'abc\n   {{>foo}}def';
+      final parser = Parser(source, 'foo', '{{ }}', lenient: false);
+      final nodes = parser.parse();
       expectNodes(nodes, [
         TextNode('abc\n   ', 0, 7),
         PartialNode('foo', 7, 15, '   '),
@@ -255,9 +255,9 @@ void main() {
     });
 
     test('parse change delimiters', () {
-      var source = '{{= | | =}}<|#lambda|-|/lambda|>';
-      var parser = Parser(source, 'foo', '{{ }}', lenient: false);
-      var nodes = parser.parse();
+      const source = '{{= | | =}}<|#lambda|-|/lambda|>';
+      final parser = Parser(source, 'foo', '{{ }}', lenient: false);
+      final nodes = parser.parse();
       expectNodes(nodes, [
         TextNode('<', 11, 12),
         SectionNode('lambda', 12, 21, '| |'),
@@ -268,8 +268,8 @@ void main() {
     });
 
     test('corner case strict', () {
-      var source = '{{{ #foo }}} {{{ /foo }}}';
-      var parser = Parser(source, 'foo', '{{ }}', lenient: false);
+      const source = '{{{ #foo }}} {{{ /foo }}}';
+      final parser = Parser(source, 'foo', '{{ }}', lenient: false);
       try {
         parser.parse();
         fail('Should fail.');
@@ -279,9 +279,9 @@ void main() {
     });
 
     test('corner case lenient', () {
-      var source = '{{{ #foo }}} {{{ /foo }}}';
-      var parser = Parser(source, 'foo', '{{ }}', lenient: true);
-      var nodes = parser.parse();
+      const source = '{{{ #foo }}} {{{ /foo }}}';
+      final parser = Parser(source, 'foo', '{{ }}', lenient: true);
+      final nodes = parser.parse();
       expectNodes(nodes, [
         VariableNode('#foo', 0, 12, escape: false),
         TextNode(' ', 12, 13),
@@ -299,15 +299,15 @@ void main() {
     });
 
     test('exception', () {
-      var source = "'{{ foo }} sdfffffffffffffffffffffffffffffffffffffffffffff "
+      const source = "'{{ foo }} sdfffffffffffffffffffffffffffffffffffffffffffff "
           'dsfsdf sdfdsa fdsfads fsdfdsfadsf dsfasdfsdf sdfdsfsadf sdfadsfsdf ';
-      var ex = TemplateException('boom!', 'foo.mustache', source, 2);
+      final ex = TemplateException('boom!', 'foo.mustache', source, 2);
       ex.toString();
     });
 
-    dynamic parseFail(source) {
+    dynamic parseFail(String source) {
       try {
-        var parser = Parser(source, 'foo', '{{ }}', lenient: false);
+        final parser = Parser(source, 'foo', '{{ }}', lenient: false);
         parser.parse();
         fail('Did not throw.');
       } on Exception catch (ex, st) {
@@ -376,25 +376,25 @@ void main() {
   });
 }
 
-bool nodeEqual(a, b) {
+bool nodeEqual(Node a,Node b) {
   if (a is TextNode) {
     return b is TextNode &&
         a.text == b.text &&
         a.start == b.start &&
         a.end == b.end;
   } else if (a is VariableNode) {
-    return a.name == b.name &&
+    return  b is VariableNode &&   a.name == b.name &&
         a.escape == b.escape &&
         a.start == b.start &&
         a.end == b.end;
   } else if (a is SectionNode) {
-    return a.name == b.name &&
+    return  b is SectionNode &&  a.name == b.name &&
         a.delimiters == b.delimiters &&
         a.inverse == b.inverse &&
         a.start == b.start &&
         a.end == b.end;
   } else if (a is PartialNode) {
-    return a.name == b.name && a.indent == b.indent;
+    return  b is PartialNode && a.name == b.name && a.indent == b.indent;
   } else {
     return false;
   }
