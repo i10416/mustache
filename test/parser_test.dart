@@ -305,73 +305,61 @@ void main() {
       ex.toString();
     });
 
-    dynamic parseFail(String source) {
-      try {
-        final parser = Parser(source, 'foo', '{{ }}', lenient: false);
-        parser.parse();
-        fail('Did not throw.');
-      } on Exception catch (ex, st) {
-        if (ex is! TemplateException) {
-          // ignore: avoid_print
-          print(ex);
-          // ignore: avoid_print
-          print(st);
-        }
-        return ex;
-      }
+    dynamic attemptLenient(String source) {
+      final parser = Parser(source, 'foo', '{{ }}', lenient: false);
+      parser.parse();
     }
-
+    Matcher exceptionOfType<T extends Object>() => TypeMatcher<T>();
     test('parse eof', () {
-      void expectTemplateEx(dynamic ex) => expect(ex is TemplateException, isTrue);
+      expect(()=>attemptLenient('{{#foo}}{{bar}}{{/foo}'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{#foo}}{{bar}}{{/foo}'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{#foo}}{{bar}}{{/foo'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{#foo}}{{bar}}{{/'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{#foo}}{{bar}}{{'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{#foo}}{{bar}}{'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{#foo}}{{bar}}'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{#foo}}{{bar}'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{#foo}}{{bar'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{#foo}}{{'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{#foo}}{'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{#foo}}'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{#foo}'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{#'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{ # foo }}{{ bar }}{{ / foo }'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{ # foo }}{{ bar }}{{ / foo '),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{ # foo }}{{ bar }}{{ / foo'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{ # foo }}{{ bar }}{{ / '),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{ # foo }}{{ bar }}{{ /'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{ # foo }}{{ bar }}{{ '),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{ # foo }}{{ bar }}{{'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{ # foo }}{{ bar }}{'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{ # foo }}{{ bar }}'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{ # foo }}{{ bar }'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{ # foo }}{{ bar '),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{ # foo }}{{ bar'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{ # foo }}{{ '),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{ # foo }}{{'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{ # foo }}{'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{ # foo }}'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{ # foo }'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{ # foo '),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{ # foo'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{ # '),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{ #'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{ '),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{'),throwsA(exceptionOfType<TemplateException>()));
 
-      expectTemplateEx(parseFail('{{#foo}}{{bar}}{{/foo}'));
-      expectTemplateEx(parseFail('{{#foo}}{{bar}}{{/foo'));
-      expectTemplateEx(parseFail('{{#foo}}{{bar}}{{/'));
-      expectTemplateEx(parseFail('{{#foo}}{{bar}}{{'));
-      expectTemplateEx(parseFail('{{#foo}}{{bar}}{'));
-      expectTemplateEx(parseFail('{{#foo}}{{bar}}'));
-      expectTemplateEx(parseFail('{{#foo}}{{bar}'));
-      expectTemplateEx(parseFail('{{#foo}}{{bar'));
-      expectTemplateEx(parseFail('{{#foo}}{{'));
-      expectTemplateEx(parseFail('{{#foo}}{'));
-      expectTemplateEx(parseFail('{{#foo}}'));
-      expectTemplateEx(parseFail('{{#foo}'));
-      expectTemplateEx(parseFail('{{#'));
-      expectTemplateEx(parseFail('{{'));
-      expectTemplateEx(parseFail('{{ # foo }}{{ bar }}{{ / foo }'));
-      expectTemplateEx(parseFail('{{ # foo }}{{ bar }}{{ / foo '));
-      expectTemplateEx(parseFail('{{ # foo }}{{ bar }}{{ / foo'));
-      expectTemplateEx(parseFail('{{ # foo }}{{ bar }}{{ / '));
-      expectTemplateEx(parseFail('{{ # foo }}{{ bar }}{{ /'));
-      expectTemplateEx(parseFail('{{ # foo }}{{ bar }}{{ '));
-      expectTemplateEx(parseFail('{{ # foo }}{{ bar }}{{'));
-      expectTemplateEx(parseFail('{{ # foo }}{{ bar }}{'));
-      expectTemplateEx(parseFail('{{ # foo }}{{ bar }}'));
-      expectTemplateEx(parseFail('{{ # foo }}{{ bar }'));
-      expectTemplateEx(parseFail('{{ # foo }}{{ bar '));
-      expectTemplateEx(parseFail('{{ # foo }}{{ bar'));
-      expectTemplateEx(parseFail('{{ # foo }}{{ '));
-      expectTemplateEx(parseFail('{{ # foo }}{{'));
-      expectTemplateEx(parseFail('{{ # foo }}{'));
-      expectTemplateEx(parseFail('{{ # foo }}'));
-      expectTemplateEx(parseFail('{{ # foo }'));
-      expectTemplateEx(parseFail('{{ # foo '));
-      expectTemplateEx(parseFail('{{ # foo'));
-      expectTemplateEx(parseFail('{{ # '));
-      expectTemplateEx(parseFail('{{ #'));
-      expectTemplateEx(parseFail('{{ '));
-      expectTemplateEx(parseFail('{{'));
-
-      expectTemplateEx(parseFail('{{= || || =}'));
-      expectTemplateEx(parseFail('{{= || || ='));
-      expectTemplateEx(parseFail('{{= || || '));
-      expectTemplateEx(parseFail('{{= || ||'));
-      expectTemplateEx(parseFail('{{= || |'));
-      expectTemplateEx(parseFail('{{= || '));
-      expectTemplateEx(parseFail('{{= ||'));
-      expectTemplateEx(parseFail('{{= |'));
-      expectTemplateEx(parseFail('{{= '));
-      expectTemplateEx(parseFail('{{='));
+      expect(()=>attemptLenient('{{= || || =}'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{= || || ='),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{= || || '),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{= || ||'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{= || |'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{= || '),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{= ||'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{= |'),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{= '),throwsA(exceptionOfType<TemplateException>()));
+      expect(()=>attemptLenient('{{='),throwsA(exceptionOfType<TemplateException>()));
     });
   });
 }
