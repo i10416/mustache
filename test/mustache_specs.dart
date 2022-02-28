@@ -79,11 +79,15 @@ void _defineGroupFromFile(filename, text) {
   });
 }
 
+const excludes = <String>['~inheritance.json'];
 bool shouldRun(String filename) {
   // filter out only .json files
   if (!filename.endsWith('.json')) {
     return false;
   }
+  if(excludes.any((pattern) => filename.endsWith(pattern))) {
+    return false;
+  };
   return true;
 }
 
