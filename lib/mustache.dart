@@ -20,12 +20,12 @@ abstract class Template {
   /// [values] can be a combination of Map, List, String. Any non-String object
   /// will be converted using toString(). Null values will cause a
   /// [TemplateException], unless lenient module is enabled.
-  String renderString(values);
+  String renderString(dynamic values);
 
   /// [values] can be a combination of Map, List, String. Any non-String object
   /// will be converted using toString(). Null values will cause a
   /// [TemplateException], unless lenient module is enabled.
-  void render(values, StringSink sink);
+  void render(dynamic values, StringSink sink);
 }
 
 typedef PartialResolver = Template? Function(String);
@@ -43,7 +43,7 @@ abstract class LambdaContext {
 
   /// Render and directly output the current section tag. If provided, value
   /// will be added to the top of the context's stack.
-  void render({Object value});
+  void render({Object? value});
 
   /// Output a string. The output will not be html escaped, and will be written
   /// before the output returned from the lambda.

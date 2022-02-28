@@ -8,7 +8,7 @@ const Object noSuchProperty = Object();
 final RegExp _integerTag = RegExp(r'^[0-9]+$');
 
 class Renderer extends Visitor {
-  Renderer(this.sink, List stack, this.lenient, this.htmlEscapeValues,
+  Renderer(this.sink, List<dynamic> stack, this.lenient, this.htmlEscapeValues,
       this.partialResolver, this.templateName, this.indent, this.source)
       : _stack = List.from(stack);
 
@@ -33,7 +33,7 @@ class Renderer extends Visitor {
             ctx.partialResolver, ctx.templateName, ctx.indent + indent, source);
 
   final StringSink sink;
-  final List _stack;
+  final List<dynamic> _stack;
   final bool lenient;
   final bool htmlEscapeValues;
   final m.PartialResolver? partialResolver;
@@ -41,9 +41,9 @@ class Renderer extends Visitor {
   final String indent;
   final String source;
 
-  void push(value) => _stack.add(value);
+  void push(dynamic value) => _stack.add(value);
 
-  Object pop() => _stack.removeLast();
+  Object? pop() => _stack.isEmpty ? null : _stack.removeLast();
 
   void write(Object output) => sink.write(output.toString());
 
@@ -57,7 +57,7 @@ class Renderer extends Visitor {
 
       nodes.take(nodes.length - 1).forEach((n) => n.accept(this));
 
-      var node = nodes.last;
+      final node = nodes.last;
       if (node is TextNode) {
         visitText(node, lastNode: true);
       } else {
@@ -73,11 +73,11 @@ class Renderer extends Visitor {
       write(node.text);
     } else if (lastNode && node.text.runes.last == _NEWLINE) {
       // Don't indent after the last line in a template.
-      var s = node.text.substring(0, node.text.length - 1);
-      write(s.replaceAll('\n', '\n${indent}'));
+      final s = node.text.substring(0, node.text.length - 1);
+      write(s.replaceAll('\n', '\n$indent'));
       write('\n');
     } else {
-      write(node.text.replaceAll('\n', '\n${indent}'));
+      write(node.text.replaceAll('\n', '\n$indent'));
     }
   }
 
@@ -86,8 +86,8 @@ class Renderer extends Visitor {
     var value = resolveValue(node.name);
 
     if (value is Function) {
-      var context = LambdaContext(node, this);
-      var valueFunction = value;
+      final context = LambdaContext(node, this);
+      final valueFunction = value;
       value = valueFunction(context);
       context.close();
     }
@@ -97,8 +97,8 @@ class Renderer extends Visitor {
         throw error('Value was missing for variable tag: ${node.name}.', node);
       }
     } else {
-      var valueString = (value == null) ? '' : value.toString();
-      var output = !node.escape || !htmlEscapeValues
+      final valueString = (value == null) ? '' : value.toString();
+      final output = !node.escape || !htmlEscapeValues
           ? valueString
           : _htmlEscape(valueString);
       write(output);
@@ -116,7 +116,7 @@ class Renderer extends Visitor {
 
   //TODO can probably combine Inv and Normal to shorten.
   void _renderSection(SectionNode node) {
-    var value = resolveValue(node.name);
+    final value = resolveValue(node.name);
 
     if (value == null) {
       // Do nothing.
@@ -135,10 +135,10 @@ class Renderer extends Visitor {
         throw error('Value was missing for section tag: ${node.name}.', node);
       }
     } else if (value is Function) {
-      var context = LambdaContext(node, this);
-      var output = value(context);
+      final context = LambdaContext(node, this);
+      final output = value(context);
       context.close();
-      if (output != null) write(output);
+      if (output != null) write(output as Object);
     } else {
       // Assume the value might have accessible member values via mirrors.
       _renderWithValue(node, value);
@@ -146,7 +146,7 @@ class Renderer extends Visitor {
   }
 
   void _renderInvSection(SectionNode node) {
-    var value = resolveValue(node.name);
+    final value = resolveValue(node.name);
 
     if (value == null) {
       _renderWithValue(node, null);
@@ -179,7 +179,7 @@ class Renderer extends Visitor {
     }
   }
 
-  void _renderWithValue(SectionNode node, value) {
+  void _renderWithValue(SectionNode node,dynamic value) {
     push(value);
     node.visitChildren(this);
     pop();
@@ -187,13 +187,13 @@ class Renderer extends Visitor {
 
   @override
   void visitPartial(PartialNode node) {
-    var partialName = node.name;
-    var template = partialResolver == null
+    final partialName = node.name;
+    final template = partialResolver == null
         ? null
         : (partialResolver!(partialName) as Template?);
     if (template != null) {
-      var renderer = Renderer.partial(this, template, node.indent);
-      var nodes = getTemplateNodes(template);
+      final renderer = Renderer.partial(this, template, node.indent);
+      final nodes = getTemplateNodes(template);
       renderer.render(nodes);
     } else if (lenient) {
       // do nothing
@@ -208,7 +208,7 @@ class Renderer extends Visitor {
     if (name == '.') {
       return _stack.last;
     }
-    var parts = name.split('.');
+    final parts = name.split('.');
     Object? object = noSuchProperty;
     for (var o in _stack.reversed) {
       object = _getNamedProperty(o, parts[0]);
@@ -230,10 +230,12 @@ class Renderer extends Visitor {
   // objects, this is object.name or object.name(). If no property
   // by the given name exists, this method returns noSuchProperty.
   Object? _getNamedProperty(dynamic object, dynamic name) {
+    // name is of type T?
     if (object is Map && object.containsKey(name)) return object[name];
 
-    if (object is List && _integerTag.hasMatch(name)) {
-      var index = int.parse(name);
+    // name should be String
+    if ( name is String && object is List && _integerTag.hasMatch(name)) {
+      final index = int.parse(name);
       if (object.length > index) {
         return object[index];
       }
@@ -254,7 +256,7 @@ class Renderer extends Visitor {
   };
 
   String _htmlEscape(String s) {
-    var buffer = StringBuffer();
+    final buffer = StringBuffer();
     var startIndex = 0;
     var i = 0;
     for (var c in s.runes) {

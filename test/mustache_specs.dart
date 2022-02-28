@@ -11,14 +11,14 @@ import 'dart:io';
 import 'package:mustache_template/mustache.dart';
 import 'package:test/test.dart';
 
-String render(source, values, {partial}) {
+String render(String source, dynamic values, {required String? Function(String) partial}) {
   late Template? Function(String) resolver;
   resolver = (name) {
-    var source = partial(name);
+    final source = partial(name);
     if (source == null) return null;
     return Template(source, partialResolver: resolver, lenient: true);
   };
-  var t = Template(source, partialResolver: resolver, lenient: true);
+  final t = Template(source, partialResolver: resolver, lenient: true);
   return t.renderString(values);
 }
 
@@ -27,36 +27,45 @@ void main() {
 }
 
 void defineTests() {
-  var specs_dir = Directory('test/spec/specs');
+  final specs_dir = Directory('test/spec/specs');
   specs_dir.listSync().forEach((f) {
     if (f is File) {
-      var filename = f.path;
+      final filename = f.path;
       if (shouldRun(filename)) {
-        var text = f.readAsStringSync(encoding: utf8);
+        final text = f.readAsStringSync(encoding: utf8);
         _defineGroupFromFile(filename, text);
       }
     }
   });
 }
 
-void _defineGroupFromFile(filename, text) {
-  var jsondata = json.decode(text);
-  var tests = jsondata['tests'];
+void _defineGroupFromFile(String filename, String text) {
+  final jsondata = json.decode(text) as Map<String,dynamic>;
+  final tests = (jsondata['tests'] as Iterable<dynamic>).cast<Map<String,dynamic>>();
   filename = filename.substring(filename.lastIndexOf('/') + 1);
   group('Specs of $filename', () {
     tests.forEach((t) {
-      var testDescription = StringBuffer(t['name']);
-      testDescription.write(': ');
-      testDescription.write(t['desc']);
-      var template = t['template'];
-      var data = t['data'];
-      var templateOneline =
-          template.replaceAll('\n', '\\n').replaceAll('\r', '\\r');
-      var reason =
-          StringBuffer("Could not render right '''$templateOneline'''");
-      var expected = t['expected'];
-      var partials = t['partials'];
-      var partial = (String name) {
+      if(t['name'] == null){
+        return;
+      }
+      final testDescription = StringBuffer(t['name']! as Object)
+        ..write(': ')
+        ..write(t['desc']);
+      if(t['template'] == null){
+        return;
+      }
+      final template = t['template']! as String?;
+      if(template == null){
+        return;
+      }
+      final data = int.tryParse(t['data'].toString()) ?? (t['data'] is  Map<String,dynamic> ?  t['data'] as Map<String,dynamic> : t['data'] as String);
+      final templateOneline =
+      template.replaceAll('\n', '\\n').replaceAll('\r', '\\r');
+      final reason =
+      StringBuffer("Could not render right '''$templateOneline'''");
+      final expected = t['expected'];
+      final partials = t['partials'] is Map<String,dynamic>? ? (t['partials'] as Map<String,dynamic>?)?.cast<String,String?>() : null;
+      final partial = (String name) {
         if (partials == null) {
           return null;
         }
@@ -64,8 +73,8 @@ void _defineGroupFromFile(filename, text) {
       };
 
       //swap the data.lambda with a dart real function
-      if (data['lambda'] != null) {
-        data['lambda'] = lambdas[t['name']];
+      if (data is Map<String,dynamic> && data['lambda'] != null) {
+        data['lambda'] = lambdas[t['name'].toString()];
       }
       reason.write(" with '$data'");
       if (partials != null) {
@@ -73,21 +82,25 @@ void _defineGroupFromFile(filename, text) {
       }
       test(
           testDescription.toString(),
-          () => expect(render(template, data, partial: partial), expected,
+              () => expect(render(template, data, partial: partial), expected,
               reason: reason.toString()));
     });
   });
 }
 
+const excludes = <String>['~inheritance.json'];
 bool shouldRun(String filename) {
   // filter out only .json files
   if (!filename.endsWith('.json')) {
     return false;
   }
+  if(excludes.any((pattern) => filename.endsWith(pattern))) {
+    return false;
+  };
   return true;
 }
 
-Function _dummyCallableWithState() {
+String? Function(String) _dummyCallableWithState() {
   var _callCounter = 0;
   return (arg) {
     _callCounter++;
@@ -95,21 +108,21 @@ Function _dummyCallableWithState() {
   };
 }
 
-Function wrapLambda(Function f) =>
-    (LambdaContext ctx) => ctx.renderSource(f(ctx.source).toString());
+Function wrapLambda(dynamic Function(String) f) =>
+        (LambdaContext ctx) => ctx.renderSource(f(ctx.source).toString());
 
-var lambdas = {
+final lambdas = {
   'Interpolation': wrapLambda((t) => 'world'),
   'Interpolation - Expansion': wrapLambda((t) => '{{planet}}'),
   'Interpolation - Alternate Delimiters':
-      wrapLambda((t) => '|planet| => {{planet}}'),
+  wrapLambda((t) => '|planet| => {{planet}}'),
   'Interpolation - Multiple Calls': wrapLambda(
       _dummyCallableWithState()), //function() { return (g=(function(){return this})()).calls=(g.calls||0)+1 }
   'Escaping': wrapLambda((t) => '>'),
   'Section': wrapLambda((txt) => txt == '{{x}}' ? 'yes' : 'no'),
   'Section - Expansion': wrapLambda((txt) => '$txt{{planet}}$txt'),
   'Section - Alternate Delimiters':
-      wrapLambda((txt) => '$txt{{planet}} => |planet|$txt'),
+  wrapLambda((txt) => '$txt{{planet}} => |planet|$txt'),
   'Section - Multiple Calls': wrapLambda((t) => '__${t}__'),
   'Inverted Section': wrapLambda((txt) => false)
 };

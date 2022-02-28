@@ -5,12 +5,12 @@ import 'token.dart';
 
 List<Node> parse(
     String source, bool lenient, String? templateName, String delimiters) {
-  var parser = Parser(source, templateName, delimiters, lenient: lenient);
+  final parser = Parser(source, templateName, delimiters, lenient: lenient);
   return parser.parse();
 }
 
 class Tag {
-  Tag(this.type, this.name, this.start, this.end);
+  const Tag(this.type, this.name, this.start, this.end);
   final TagType type;
   final String name;
   final int start;
@@ -34,7 +34,7 @@ class TagType {
 
 class Parser {
   Parser(String source, String? templateName, String delimiters,
-      {lenient = false})
+      {bool lenient = false})
       : _source = source,
         _templateName = templateName,
         _delimiters = delimiters,
@@ -59,7 +59,7 @@ class Parser {
 
     // Handle a standalone tag on first line, including special case where the
     // first line is empty.
-    var lineEnd = _readIf(TokenType.lineEnd, eofOk: true);
+    final lineEnd = _readIf(TokenType.lineEnd, eofOk: true);
     if (lineEnd != null) _appendTextToken(lineEnd);
     _parseLine();
 
@@ -72,8 +72,8 @@ class Parser {
           break;
 
         case TokenType.openDelimiter:
-          var tag = _readTag();
-          var node = _createNodeFromTag(tag);
+          final tag = _readTag();
+          final node = _createNodeFromTag(tag);
           if (tag != null) _appendTag(tag, node);
           break;
 
@@ -114,16 +114,16 @@ class Parser {
   }
 
   Token _expect(TokenType type) {
-    var token = _read();
+    final token = _read();
     if (token == null) throw _errorEof();
     if (token.type != type) {
-      throw _error('Expected: ${type} found: ${token.type}.', _offset);
+      throw _error('Expected: $type found: ${token.type}.', _offset);
     }
     return token;
   }
 
-  Token? _readIf(TokenType type, {eofOk = false}) {
-    var token = _peek();
+  Token? _readIf(TokenType type, {bool eofOk = false}) {
+    final token = _peek();
     if (!eofOk && token == null) throw _errorEof();
     return token != null && token.type == type ? _read() : null;
   }
@@ -139,12 +139,12 @@ class Parser {
   void _appendTextToken(Token token) {
     assert(const [TokenType.text, TokenType.lineEnd, TokenType.whitespace]
         .contains(token.type));
-    var children = _stack.last.children;
+    final children = _stack.last.children;
     if (children.isEmpty || children.last is! TextNode) {
       children.add(TextNode(token.value, token.start, token.end));
     } else {
-      var last = children.removeLast() as TextNode;
-      var node = TextNode(last.text + token.value, last.start, token.end);
+      final last = children.removeLast() as TextNode;
+      final node = TextNode(last.text + token.value, last.start, token.end);
       children.add(node);
     }
   }
@@ -171,7 +171,7 @@ class Parser {
               _source,
               tag.start);
         }
-        var node = _stack.removeLast();
+        final node = _stack.removeLast();
         node.contentEnd = tag.start;
         break;
 
@@ -206,18 +206,18 @@ class Parser {
   // Where lineEnd can also mean start/end of the source.
   void _parseLine() {
     // If first token is a newline append it.
-    var t = _peek();
+    final t = _peek();
     if (t != null && t.type == TokenType.lineEnd) _appendTextToken(t);
 
     // Continue parsing standalone lines until we find one than isn't a
     // standalone line.
     while (_peek() != null) {
       _readIf(TokenType.lineEnd, eofOk: true);
-      var precedingWhitespace = _readIf(TokenType.whitespace, eofOk: true);
-      var indent = precedingWhitespace == null ? '' : precedingWhitespace.value;
-      var tag = _readTag();
-      var tagNode = _createNodeFromTag(tag, partialIndent: indent);
-      var followingWhitespace = _readIf(TokenType.whitespace, eofOk: true);
+      final precedingWhitespace = _readIf(TokenType.whitespace, eofOk: true);
+      final indent = precedingWhitespace == null ? '' : precedingWhitespace.value;
+      final tag = _readTag();
+      final tagNode = _createNodeFromTag(tag, partialIndent: indent);
+      final followingWhitespace = _readIf(TokenType.whitespace, eofOk: true);
 
       const standaloneTypes = [
         TagType.openSection,
@@ -260,7 +260,7 @@ class Parser {
   // If open delimiter, or change delimiter token then return a tag.
   // If EOF or any another token then return null.
   Tag? _readTag() {
-    var t = _peek();
+    final t = _peek();
     if (t == null ||
         (t.type != TokenType.changeDelimiter &&
             t.type != TokenType.openDelimiter)) {
@@ -277,7 +277,7 @@ class Parser {
 
     // Start parsing a typical tag.
 
-    var open = _expect(TokenType.openDelimiter);
+    final open = _expect(TokenType.openDelimiter);
 
     _readIf(TokenType.whitespace);
 
@@ -289,7 +289,7 @@ class Parser {
     if (open.value == '{{{') {
       tagType = TagType.tripleMustache;
     } else {
-      var sigil = _readIf(TokenType.sigil);
+      final sigil = _readIf(TokenType.sigil);
       tagType = sigil == null ? TagType.variable : _tagTypeMap[sigil.value];
     }
 
@@ -299,14 +299,14 @@ class Parser {
     // Also check that they are valid token types.
     // TODO split up names here instead of during render.
     // Also check that they are valid token types.
-    var list = <Token>[];
+    final list = <Token>[];
     for (var t = _peek();
         t != null && t.type != TokenType.closeDelimiter;
         t = _peek()) {
       _read();
       list.add(t);
     }
-    var name = list.map((t) => t.value).join().trim();
+    final name = list.map((t) => t.value).join().trim();
     if (_peek() == null) throw _errorEof();
 
     // Check to see if the tag name is valid.
@@ -326,7 +326,7 @@ class Parser {
       }
     }
 
-    var close = _expect(TokenType.closeDelimiter);
+    final close = _expect(TokenType.closeDelimiter);
 
     return Tag(tagType!, name, open.start, close.end);
   }
@@ -341,7 +341,7 @@ class Parser {
     switch (tag.type) {
       case TagType.openSection:
       case TagType.openInverseSection:
-        var inverse = tag.type == TagType.openInverseSection;
+        final inverse = tag.type == TagType.openInverseSection;
         node = SectionNode(tag.name, tag.start, tag.end, _currentDelimiters!,
             inverse: inverse);
         break;
@@ -349,7 +349,7 @@ class Parser {
       case TagType.variable:
       case TagType.unescapedVariable:
       case TagType.tripleMustache:
-        var escape = tag.type == TagType.variable;
+        final escape = tag.type == TagType.variable;
         node = VariableNode(tag.name, tag.start, tag.end, escape: escape);
         break;
 

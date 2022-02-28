@@ -22,7 +22,7 @@ class TokenType {
 }
 
 class Token {
-  Token(this.type, this.value, this.start, this.end);
+  const Token(this.type, this.value, this.start, this.end);
 
   final TokenType type;
   final String value;

@@ -52,14 +52,14 @@ class Scanner {
         continue;
       }
 
-      var start = _offset;
+      final start = _offset;
 
       // Read first open delimiter character.
       _read();
 
       // If only a single delimiter character then create a text token.
       if (_openDelimiterInner != null && _peek() != _openDelimiterInner) {
-        var value = String.fromCharCode(_openDelimiter!);
+        final value = String.fromCharCode(_openDelimiter!);
         _append(TokenType.text, value, start, _offset);
         continue;
       }
@@ -77,14 +77,14 @@ class Scanner {
       } else {
         // Check to see if this is a change delimiter tag. {{= | | =}}
         // Need to skip whitespace and check for "=".
-        var wsStart = _offset;
-        var ws = _readWhile(_isWhitespace);
+        final wsStart = _offset;
+        final ws = _readWhile(_isWhitespace);
 
         if (_peek() == _EQUAL) {
           _parseChangeDelimiterTag(start);
         } else {
           // Scan standard mustache tag.
-          var value = String.fromCharCodes(_openDelimiterInner == null
+          final value = String.fromCharCodes(_openDelimiterInner == null
               ? [_openDelimiter!]
               : [_openDelimiter!, _openDelimiterInner!]);
 
@@ -103,7 +103,7 @@ class Scanner {
   int _peek() => _c;
 
   int _read() {
-    var c = _c;
+    final c = _c;
     _offset++;
     _c = _itr.moveNext() ? _itr.current : _EOF;
     return c;
@@ -111,16 +111,16 @@ class Scanner {
 
   String _readWhile(bool Function(int charCode) test) {
     if (_c == _EOF) return '';
-    var start = _offset;
+    final start = _offset;
     while (_peek() != _EOF && test(_peek())) {
       _read();
     }
-    var end = _peek() == _EOF ? _source.length : _offset;
+    final end = _peek() == _EOF ? _source.length : _offset;
     return _source.substring(start, end);
   }
 
   void _expect(int expectedCharCode) {
-    var c = _read();
+    final c = _read();
 
     if (c == _EOF) {
       throw TemplateException(
@@ -254,12 +254,12 @@ class Scanner {
   // Scan close delimiter token.
   void _scanCloseDelimiter() {
     if (_peek() != _EOF) {
-      var start = _offset;
+      final start = _offset;
 
       if (_closeDelimiterInner != null) _expect(_closeDelimiterInner!);
       _expect(_closeDelimiter!);
 
-      var value = String.fromCharCodes(_closeDelimiterInner == null
+      final value = String.fromCharCodes(_closeDelimiterInner == null
           ? [_closeDelimiter!]
           : [_closeDelimiterInner!, _closeDelimiter!]);
 
@@ -270,7 +270,7 @@ class Scanner {
   // Scan close triple mustache delimiter token.
   void _scanCloseTripleMustache() {
     if (_peek() != _EOF) {
-      var start = _offset;
+      final start = _offset;
 
       _expect(_CLOSE_MUSTACHE);
       _expect(_CLOSE_MUSTACHE);
@@ -284,8 +284,8 @@ class Scanner {
   void _parseChangeDelimiterTag(int start) {
     _expect(_EQUAL);
 
-    var delimiterInner = _closeDelimiterInner;
-    var delimiter = _closeDelimiter;
+    final delimiterInner = _closeDelimiterInner;
+    final delimiter = _closeDelimiter;
 
     _readWhile(_isWhitespace);
 
@@ -328,7 +328,7 @@ class Scanner {
     _expect(delimiter!);
 
     // Create delimiter string.
-    var buffer = StringBuffer();
+    final buffer = StringBuffer();
     buffer.writeCharCode(_openDelimiter!);
     if (_openDelimiterInner != null) buffer.writeCharCode(_openDelimiterInner!);
     buffer.write(' ');
@@ -336,7 +336,7 @@ class Scanner {
       buffer.writeCharCode(_closeDelimiterInner!);
     }
     buffer.writeCharCode(_closeDelimiter!);
-    var value = buffer.toString();
+    final value = buffer.toString();
 
     _append(TokenType.changeDelimiter, value, start, _offset);
   }
