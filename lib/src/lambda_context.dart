@@ -66,9 +66,7 @@ class LambdaContext extends m.LambdaContext with HasSource,LambdaCtxWritable {
   }
 
   @internal
-  void checkClosedOrThrow() {
-    if (_closed) throw _error('LambdaContext accessed outside of callback.');
-  }
+  void checkClosedOrThrow() => _checkClosed();
 
   @override
   String get source {
@@ -96,11 +94,7 @@ class LambdaContext extends m.LambdaContext with HasSource,LambdaCtxWritable {
     final sink = StringBuffer();
 
     // Lambdas used for sections should parse with the current delimiters.
-    var delimiters = '{{ }}';
-    if (_node is SectionNode) {
-      final node = _node as SectionNode;
-      delimiters = node.delimiters;
-    }
+    final delimiters =  _node is SectionNode ? (_node as SectionNode).delimiters : '{{ }}';
 
     final nodes = parser.parse(
         source, _renderer.lenient, _renderer.templateName, delimiters);
